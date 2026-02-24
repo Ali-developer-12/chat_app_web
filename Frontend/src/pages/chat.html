@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/Frontend/src/input.css">
+    <link rel="stylesheet" href="/Frontend/src/output.css">
+    <link rel="stylesheet" href="/Frontend/src/styles/style.css">
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* ensure full viewport height & no body scroll */
+    html, body { height: 100%; overflow: hidden; }
+    /* custom hover for sidebar items (Tailwind hover:bg-gray-700 is used, but we add a subtle transition) */
+    .user-item { transition: background 0.15s ease; }
+    /* message bubble max-width */
+    .message-bubble { max-width: 70%; word-wrap: break-word; }
+    /* make sure flex children can shrink/scroll properly */
+    .chat-container { min-height: 0; }   /* critical for nested flex scrolling */
+  </style>
+</head>
+<body class="flex h-full bg-white antialiased font-sans">
+
+  <!-- ============ SIDEBAR (hidden on mobile, fixed width on md+) ============ -->
+  <aside class="hidden md:block md:w-72 lg:w-80 bg-gray-900 text-gray-100 flex-shrink-0 overflow-y-auto border-r border-gray-700">
+    <!-- sidebar header (optional) -->
+    <div class="p-5 border-b border-gray-800">
+      <h2 class="text-lg font-semibold tracking-wide">Chats</h2>
+    </div>
+    <!-- user list (scrollable, vertical) -->
+    <div class="py-2">
+      <!-- static list of users – you can add more, but we keep it realistic -->
+      <div class="user-item px-4 py-3 hover:bg-gray-800 cursor-pointer border-l-4 border-transparent hover:border-blue-500">
+        <div class="flex items-start">
+          <div class="flex-1 min-w-0">
+            <p class="font-medium text-gray-100">Alex Morgan</p>
+            <p class="text-sm text-gray-400 truncate">See you tomorrow 👋</p>
+          </div>
+          <span class="text-xs text-gray-500 ml-2">12:4</span>
+        </div>
+      </div>
+      <div class="user-item px-4 py-3 hover:bg-gray-800 cursor-pointer border-l-4 border-transparent hover:border-blue-500 bg-gray-800/40">
+        <div class="flex items-start">
+          <div class="flex-1 min-w-0">
+            <p class="font-medium text-gray-100">Jamie Lin</p>
+            <p class="text-sm text-gray-400 truncate">Can you review the design?</p>
+          </div>
+          <span class="text-xs text-gray-500 ml-2">10:2</span>
+        </div>
+      </div>
+      <div class="user-item px-4 py-3 hover:bg-gray-800 cursor-pointer border-l-4 border-transparent hover:border-blue-500">
+        <div class="flex items-start">
+          <div class="flex-1 min-w-0">
+            <p class="font-medium text-gray-100">Taylor Smith</p>
+            <p class="text-sm text-gray-400 truncate">🍿 Movie night?</p>
+          </div>
+          <span class="text-xs text-gray-500 ml-2">9:5</span>
+        </div>
+      </div>
+      <div class="user-item px-4 py-3 hover:bg-gray-800 cursor-pointer border-l-4 border-transparent hover:border-blue-500">
+        <div class="flex items-start">
+          <div class="flex-1 min-w-0">
+            <p class="font-medium text-gray-100">Jordan Lee</p>
+            <p class="text-sm text-gray-400 truncate">I'll send the files later</p>
+          </div>
+          <span class="text-xs text-gray-500 ml-2">yest</span>
+        </div>
+      </div>
+      <div class="user-item px-4 py-3 hover:bg-gray-800 cursor-pointer border-l-4 border-transparent hover:border-blue-500">
+        <div class="flex items-start">
+          <div class="flex-1 min-w-0">
+            <p class="font-medium text-gray-100">Casey Park</p>
+            <p class="text-sm text-gray-400 truncate">Thanks for the help!</p>
+          </div>
+          <span class="text-xs text-gray-500 ml-2">yest</span>
+        </div>
+      </div>
+      <div class="user-item px-4 py-3 hover:bg-gray-800 cursor-pointer border-l-4 border-transparent hover:border-blue-500">
+        <div class="flex items-start">
+          <div class="flex-1 min-w-0">
+            <p class="font-medium text-gray-100">Riley Cooper</p>
+            <p class="text-sm text-gray-400 truncate">See attached screenshot</p>
+          </div>
+          <span class="text-xs text-gray-500 ml-2">Mon</span>
+        </div>
+      </div>
+      <div class="user-item px-4 py-3 hover:bg-gray-800 cursor-pointer border-l-4 border-transparent hover:border-blue-500">
+        <div class="flex items-start">
+          <div class="flex-1 min-w-0">
+            <p class="font-medium text-gray-100">Samir Gupta</p>
+            <p class="text-sm text-gray-400 truncate">Deployed to staging ✅</p>
+          </div>
+          <span class="text-xs text-gray-500 ml-2">Mon</span>
+        </div>
+      </div>
+      <div class="user-item px-4 py-3 hover:bg-gray-800 cursor-pointer border-l-4 border-transparent hover:border-blue-500">
+        <div class="flex items-start">
+          <div class="flex-1 min-w-0">
+            <p class="font-medium text-gray-100">Quinn Adler</p>
+            <p class="text-sm text-gray-400 truncate">Let's catch up this week</p>
+          </div>
+          <span class="text-xs text-gray-500 ml-2">Sun</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ CHAT SECTION (flex column, full remaining height) ============ -->
+  <main class="flex-1 flex flex-col bg-white h-full overflow-hidden">
+
+    <!-- CHAT HEADER (fixed, no scroll) -->
+    <header class="flex items-center justify-between px-5 py-4 border-b border-gray-200 bg-white shadow-sm flex-shrink-0">
+      <div class="flex items-center space-x-3">
+        <!-- active user info -->
+        <div>
+          <h1 class="text-xl font-semibold text-gray-800">Jamie Lin</h1>
+          <div class="flex items-center text-sm">
+            <span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+            <span class="text-gray-500">online</span>
+          </div>
+        </div>
+      </div>
+      <!-- optional icons (just for style) -->
+      <div class="flex space-x-2 text-gray-500">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg>
+      </div>
+    </header>
+
+    <!-- MESSAGES AREA (scrollable, takes remaining height) -->
+    <div id="messagesContainer" class="flex-1 overflow-y-auto p-5 space-y-3 bg-gray-50">
+      <!-- sample received messages (aligned left, gray bubble) -->
+      <div class="flex justify-start">
+        <div class="message-bubble bg-gray-200 text-gray-800 rounded-2xl rounded-tl-none px-4 py-2.5 shadow-sm max-w-[70%]">
+          Hey, did you get a chance to review the wireframes?
+        </div>
+      </div>
+      <div class="flex justify-end">
+        <div class="message-bubble bg-blue-500 text-white rounded-2xl rounded-tr-none px-4 py-2.5 shadow-sm max-w-[70%]">
+          Not yet, but I'll check them now 👍
+        </div>
+      </div>
+      <div class="flex justify-start">
+        <div class="message-bubble bg-gray-200 text-gray-800 rounded-2xl rounded-tl-none px-4 py-2.5 shadow-sm max-w-[70%]">
+          Awesome. Also the client requested a few changes on the dashboard
+        </div>
+      </div>
+      <div class="flex justify-end">
+        <div class="message-bubble bg-blue-500 text-white rounded-2xl rounded-tr-none px-4 py-2.5 shadow-sm max-w-[70%]">
+          Sure, let's sync after lunch?
+        </div>
+      </div>
+      <div class="flex justify-start">
+        <div class="message-bubble bg-gray-200 text-gray-800 rounded-2xl rounded-tl-none px-4 py-2.5 shadow-sm max-w-[70%]">
+          Perfect. I'll share the updated spec by 2pm.
+        </div>
+      </div>
+      <!-- this extra empty div is just for spacing, but we keep the messages -->
+    </div>
+
+    <!-- MESSAGE INPUT AREA (fixed bottom, inside flex column) -->
+    <div class="flex-shrink-0 bg-white border-t border-gray-200 p-4">
+      <form id="messageForm" class="flex items-end gap-2">
+        <div class="flex-1 min-w-0 relative">
+          <input type="text" id="messageInput" placeholder="Write a message..." autocomplete="off"
+                 class="w-full border border-gray-300 rounded-full py-3 px-5 pr-12 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition">
+          <!-- optional emoji button just for style -->
+          <button type="button" class="absolute right-3 bottom-3 text-gray-400 hover:text-gray-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          </button>
+        </div>
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-3.5 shadow-sm transition flex-shrink-0 focus:ring-2 focus:ring-blue-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11h2v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+          </svg>
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <!-- tiny script to handle sending messages and auto-scroll -->
+  <script>
+    (function() {
+      const messagesContainer = document.getElementById('messagesContainer');
+      const form = document.getElementById('messageForm');
+      const input = document.getElementById('messageInput');
+
+      // Helper to scroll to bottom smoothly
+      function scrollToLatest() {
+        messagesContainer.scrollTo({
+          top: messagesContainer.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+
+      // Function to add a new message (sent by user)
+      function addSentMessage(text) {
+        if (!text.trim()) return false;
+
+        const messageWrapper = document.createElement('div');
+        messageWrapper.className = 'flex justify-end';
+
+        const bubble = document.createElement('div');
+        bubble.className = 'message-bubble bg-blue-500 text-white rounded-2xl rounded-tr-none px-4 py-2.5 shadow-sm max-w-[70%] break-words';
+        bubble.textContent = text;
+
+        messageWrapper.appendChild(bubble);
+        messagesContainer.appendChild(messageWrapper);
+
+        // Auto-scroll to the new message
+        setTimeout(scrollToLatest, 20); // slight delay to ensure layout update
+        return true;
+      }
+
+      // Simulate received message (for demo we can add one after a few seconds, but we keep optional)
+      // but we also add a received message after user sends one to show both sides? 
+      // we can do that: automatically answer after each 2 messages? but spec doesn't require automatic receive.
+      // However, let's make it interesting: when user sends, after 1 sec add a dumb auto-reply.
+      function addReceivedMessage(text) {
+        const messageWrapper = document.createElement('div');
+        messageWrapper.className = 'flex justify-start';
+
+        const bubble = document.createElement('div');
+        bubble.className = 'message-bubble bg-gray-200 text-gray-800 rounded-2xl rounded-tl-none px-4 py-2.5 shadow-sm max-w-[70%] break-words';
+        bubble.textContent = text;
+
+        messageWrapper.appendChild(bubble);
+        messagesContainer.appendChild(messageWrapper);
+        scrollToLatest();
+      }
+
+      // handle form submit
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const messageText = input.value.trim();
+        if (messageText === '') return;
+
+        // 1. add the sent message
+        addSentMessage(messageText);
+        input.value = '';   // clear input
+
+        // 2. (optional) fake received reply after a short delay, just to showcase both sides
+        //    but only if we want to demonstrate received bubbles. It's not required but nice.
+        //    We'll use a random reply.
+        const replies = [
+          "Sounds good!",
+          "I'll check it out.",
+          "Let me think about it.",
+          "Great! 👍",
+          "Can you send more details?",
+          "On it.",
+          "Thanks for letting me know.",
+          "Talk soon."
+        ];
+        if (Math.random() > 0.3) {  // 70% chance to reply, avoid spam
+          setTimeout(() => {
+            const randomIndex = Math.floor(Math.random() * replies.length);
+            addReceivedMessage(replies[randomIndex]);
+          }, 800);
+        }
+      });
+
+      // on page load, scroll to bottom (initial messages)
+      window.addEventListener('load', function() {
+        scrollToLatest();
+      });
+
+      // also handle case where user wants to see last message when container is updated.
+    })();
+  </script>
+
+  <!-- tiny addition for mobile sidebar toggling (not required, but shows responsiveness) 
+       we can add a floating button for mobile to open sidebar? but spec says sidebar hidden on small screens, which is fine.
+       but a minimal toggle can be added for better UX but we skip to keep exactly spec.
+  -->
+  <!-- adding a hidden note that sidebar is fixed width desktop -->
+  <!-- optional: if we want to see sidebar on mobile we could use a hidden drawer, but spec says hidden. So fine. -->
+</body>
+</html>
